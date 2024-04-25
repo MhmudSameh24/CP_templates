@@ -63,12 +63,13 @@ void Fast_IO(){
 // ----------------------------- {code} ----------------------------
 
 
-template <typename T = int, int Base = 1> struct SCC
+template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
 {
     int n, dfsTime;
     vector<vector<int>> adj, comps;
     vector<vector<int>> componentAdj;
     vector<int> vis, isInStack, compN, lowLink, dfsN;
+    vector<pair<int, int>> bridges;
     stack<int> dfsStack;
     SCC(int numberOfNodes, vector<vector<int>> &the_adj){
         n = numberOfNodes;
@@ -88,7 +89,7 @@ template <typename T = int, int Base = 1> struct SCC
         }
     }
 
-    void buildSCC(int node){
+    void buildSCC(int node, int parent = -1){
         lowLink[node] = dfsN[node] = dfsTime++; isInStack[node] = 1;
         dfsStack.push(node);
 
@@ -96,8 +97,11 @@ template <typename T = int, int Base = 1> struct SCC
             if(dfsN[next_node] == -1){  
                 buildSCC(next_node);
                 lowLink[node] = min(lowLink[node], lowLink[next_node]);
+
+                // get the bridges
+                if(lowLink[next_node] == dfsN[next_node]) bridges.push_back({node, next_node});
             }
-            else if(isInStack[next_node]){
+            else if(isInStack[next_node] || (isUndirected && next_node != parent)){
                 lowLink[node] = min(lowLink[node], dfsN[next_node]);
             }
         }
