@@ -34,7 +34,7 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
     stack<int> dfsStack;
     SCC(int numberOfNodes, vector<vector<int>> &the_adj){
         n = numberOfNodes;
-        dfsTime = 1;
+        dfsTime = 0;
         adj = the_adj; // adj.assign(n+2, vector<int>());
         vis = isInStack = compN = vector<int>(n+2, 0);
         lowLink = dfsN = vector<int>(n+2, -1);
@@ -62,7 +62,7 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
                 // get the bridges
                 if(lowLink[next_node] == dfsN[next_node]) bridges.push_back({node, next_node});
             }
-            else if(isInStack[next_node] || (isUndirected && next_node != parent)){
+            else if((!isUndirected && isInStack[next_node]) || (isUndirected && next_node != parent)){
                 lowLink[node] = min(lowLink[node], dfsN[next_node]);
             }
         }
@@ -85,7 +85,10 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
         componentAdj.assign(comps.size(), vector<int> ());
         for(int u = Base; u <= n; u++){
             for(auto &v:adj[u]){
-                if(compN[u] != compN[v]){ componentAdj[compN[u]].push_back(compN[v]); }
+                if(compN[u] != compN[v]){ 
+                    componentAdj[compN[u]].push_back(compN[v]); 
+                    if(isUndirected) componentAdj[compN[v]].push_back(compN[u]);
+                }
             }
         }
     }
