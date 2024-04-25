@@ -67,12 +67,13 @@ template <typename T = int, int Base = 1> struct SCC
 {
     int n, dfsTime;
     vector<vector<int>> adj, comps;
+    vector<vector<int>> componentAdj;
     vector<int> vis, isInStack, compN, lowLink, dfsN;
     stack<int> dfsStack;
-    SCC(int numberOfNodes){
+    SCC(int numberOfNodes, vector<vector<int>> &the_adj){
         n = numberOfNodes;
         dfsTime = 1;
-        adj.assign(n+2, vector<int>());
+        adj = the_adj; // adj.assign(n+2, vector<int>());
         vis = isInStack = compN = vector<int>(n+2, 0);
         lowLink = dfsN = vector<int>(n+2, -1);
     }
@@ -110,6 +111,16 @@ template <typename T = int, int Base = 1> struct SCC
                 x = dfsStack.top(); dfsStack.pop(); isInStack[x] = 0;
                 comps.back().push_back(x);
                 compN[x] = comps.size() - 1;
+            }
+        }
+    }
+
+
+    void buildComponentGraph(){
+        componentAdj.assign(comps.size(), vector<int> ());
+        for(int u = Base; u <= n; u++){
+            for(auto &v:adj[u]){
+                if(compN[u] != compN[v]){ componentAdj[compN[u]].push_back(compN[v]); }
             }
         }
     }
