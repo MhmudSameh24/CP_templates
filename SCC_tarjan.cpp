@@ -26,15 +26,16 @@ void Fast_IO(){
 
 template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
 {
-    int n, dfsTime;
-    vector<vector<int>> adj, comps;
-    vector<vector<int>> componentAdj;
+    int n, dfsTime, compStartTime;
+    vector<vector<int>> adj, comps, componentAdj;
     vector<int> vis, isInStack, compN, lowLink, dfsN;
     vector<pair<int, int>> bridges;
     stack<int> dfsStack;
+    set<int> artPoints;
+    bool root = false;
     SCC(int numberOfNodes, vector<vector<int>> &the_adj){
         n = numberOfNodes;
-        dfsTime = 0;
+        compStartTime = dfsTime = 0;
         adj = the_adj; // adj.assign(n+2, vector<int>());
         vis = isInStack = compN = vector<int>(n+2, 0);
         lowLink = dfsN = vector<int>(n+2, -1);
@@ -46,7 +47,11 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
 
     void buildSCC(){
         for(int i = 1; i <= n; i++){
-            if(dfsN[i] == -1) buildSCC(i);
+            if(dfsN[i] == -1) {
+                root = false;
+                compStartTime = dfsTime;
+                buildSCC(i); 
+            }
         }
     }
 
@@ -60,7 +65,16 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
                 lowLink[node] = min(lowLink[node], lowLink[next_node]);
 
                 // get the bridges
-                if(lowLink[next_node] == dfsN[next_node]) bridges.push_back({node, next_node});
+                    if(lowLink[next_node] == dfsN[next_node]) bridges.push_back({node, next_node});
+                // in other condition   
+                    // if(lowLink[next_node] > dfsN[node]) bridges.push_back({node, next_node});
+
+
+                // get articulation points
+                    if(lowLink[next_node] >= dfsN[node]) {
+                        if(dfsN[node] == compStartTime && !root) root = true; // to cheack if it is the root : do not add it to the artPoints
+                        else artPoints.insert(node);
+                    }
             }
             else if((!isUndirected && isInStack[next_node]) || (isUndirected && next_node != parent)){
                 lowLink[node] = min(lowLink[node], dfsN[next_node]);
