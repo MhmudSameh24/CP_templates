@@ -61,7 +61,7 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
 
         for(auto next_node:adj[node]){
             if(dfsN[next_node] == -1){  
-                buildSCC(next_node);
+                buildSCC(next_node, node);
                 lowLink[node] = min(lowLink[node], lowLink[next_node]);
 
                 // get the bridges
