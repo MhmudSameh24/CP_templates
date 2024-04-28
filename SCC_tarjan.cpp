@@ -101,7 +101,7 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
             for(auto &v:adj[u]){
                 if(compN[u] != compN[v]){ 
                     componentAdj[compN[u]].push_back(compN[v]); 
-                    if(isUndirected) componentAdj[compN[v]].push_back(compN[u]);
+                    // if(isUndirected) componentAdj[compN[v]].push_back(compN[u]);
                 }
             }
         }
