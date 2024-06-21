@@ -107,13 +107,57 @@ struct MyMathForNT{
 
         if (lx > rx) return 0;
 
+        // todo: create vector for the solutions:
+
         return (rx - lx) / abs(b) + 1;
     }
 
+    vector<long long> modularEquation(ll a, ll b, ll n){
+        // solves the equation ax = b (mod n)
+        vector<ll> solutions;
+        ll x, y, g;
+        g = extended_euclid(a, n, x, y);
+        if(b % g != 0) return solutions; // * no solutions
+
+        x = ( (x * b / g) % n + n) % n; // find positive x between 0 and n
+
+        for(int i = 0; i < g; ++i)
+            solutions.push_back((x + i * n / g) % n);
+
+        // * sort the solution if needed to be sorted
+        sort(solutions.begin(), solutions.end());
+
+        return solutions;
+    }
 
 
+    vector<ll> solveSystemOfCongruencesGeneral(vector<ll> &rems, vector<ll> &mods){
+        
+        // T = rem_0 (mod MODs_0) --> T = MODs_0 * x + rem_0
+        ll rem = rems[0], mod = mods[0];
 
+        // solve with prev equ, get new congruence equ
+        for(int i = 1; i < rems.size(); i++){
+            // T = rem_i (MOD MODs_i) --> T = MODs_i * y + rem_i
+            // MODs_0 * x + (-MODs_i) * y = rem_i - rem_0
+            // a           b               c 
+            ll x, y, found, a = mod, b = -mods[i], c = rems[i] - rem;
+            ll g = ldioph(a, b, c, x, y, found);
 
+            if(!found) return {-1, -1, -1};
+
+            rem += mod * x; 
+            mod = mod / g * mods[i]; // * merged mod --> lcm mods
+            rem = (rem % mod + mod) % mod; // * merge rem
+        }
+
+        //  T, rem, mod
+        //  T = rem % mod
+        //                         T      rem  mod
+        vector<ll> solution = {rem % mod, rem, mod};
+
+        return solution;
+    }
 
 
 
