@@ -41,7 +41,7 @@ template <typename T = int, int Base = 1, bool isUndirected = false> struct SCC
         lowLink = dfsN = vector<int>(n+2, -1);
     }
 
-    void rightEdge(int from, int to){
+    void writeEdge(int from, int to){
         adj[from].push_back(to);
     }
 
