@@ -23,13 +23,14 @@ void Fast_IO(){
 
 
 struct MyMathForNT{
+    const int MAXRange = 1e6;
     vector<short> isPrime;
-    MyMathForNT(){
-        isPrime.assign(1e6 + 5, 1);
-        buildIsPrime();
-    }
+    vector<long long> phi;
+    vector<int> moebius;
+    MyMathForNT(){}
 
     void buildIsPrime(){
+        isPrime.assign(MAXRange + 5, 1);
         for(int i = 2; i <= 1e6; i++){
             if(isPrime[i]){
                 for(int j = i * 2; j <= 1e6; j += i){ isPrime[j] = 0; }
@@ -171,7 +172,7 @@ struct MyMathForNT{
     }
 
 
-    long long phi(long long n){ // number of numbers are makes coprime with n : between 1 and n.
+    long long getPhiFor(long long n){ // number of numbers are makes coprime with n : between 1 and n.
 
         long long pPowOfK, relative_primes = 1;
 
@@ -185,30 +186,57 @@ struct MyMathForNT{
         return relative_primes;
     }
 
-    vector<long long> phiForRange(int rangeEnd){
-        vector<long long> phi(rangeEnd, 1);
-        for(int i = 2; i <= rangeEnd; i++){
+    void buildPhiForRange(){
+        if(isPrime.empty()) buildIsPrime();
+        phi.assign(MAXRange + 5, 1);
+        for(int i = 2; i <= MAXRange; i++){
             if(isPrime[i]){
                 phi[i] = i - 1;
-                for(int j = i * 2; j <= rangeEnd; j += i){
+                for(int j = i * 2; j <= MAXRange; j += i){
                     long long pPowOfK = 1, n = j;
                     while(n % i == 0){ pPowOfK *= i; n /= i; }
                     phi[j] *= (pPowOfK / i) * (i - 1);
                 }
             }
         }
-        return phi;
     }
 
-    long long phiForFact(long long n){ // phi(n!) ==> (isprime(n)? (n - 1) : n) * (phi(n - 1))
+    long long getPhiForFactorOf(long long n){ // phi(n!) ==> (isprime(n)? (n - 1) : n) * (phi(n - 1))
         long long ans = 1;
         for(long long i = n; i >= 2; i--){
             ans *= (isPrime[i]? i - 1 : i) ;
         } return ans;
     }
 
+    int getMoebiusFor(long long n){
+        int mobVal = 1; // the value that the even number of primes takes.
+        for(long long i = 2; i * i <= n; i++){
+            if(n % i == 0){ if(n % (i * i) == 0) return 0;
+                n /= i, mobVal = -mobVal;
+            } 
+        }
+        if(n) mobVal = -mobVal;
+        return mobVal;
+    }
 
+    void buildMoebiusForRange(){
+        if(isPrime.empty()) buildIsPrime();
+        moebius.assign(MAXRange + 5, 1);
+        for(long long i = 2; i * i <= MAXRange; i++){
+            if(isPrime[i]) {
+                moebius[i] = -1;
+                for(long long j = 2 * i; j <= MAXRange; j += i)
+                    moebius[j] = ((j % (i * i) == 0) ? 0 : -moebius[j]);
+            }
+        }
+    }
 
+    long long findIndexOfsquarFree(long long n){
+        long long inx = n;
+        for(long long i = 2; i * i <= n; i++){
+            inx += moebius[i] * (n / (i * i));
+        } return inx;
+    }
 
 
 
