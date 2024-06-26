@@ -23,8 +23,19 @@ void Fast_IO(){
 
 
 struct MyMathForNT{
+    vector<short> isPrime;
+    MyMathForNT(){
+        isPrime.assign(1e6 + 5, 1);
+        buildIsPrime();
+    }
 
-    MyMathForNT(){}
+    void buildIsPrime(){
+        for(int i = 2; i <= 1e6; i++){
+            if(isPrime[i]){
+                for(int j = i * 2; j <= 1e6; j += i){ isPrime[j] = 0; }
+            }
+        }
+    }
 
     ll extended_euclid(ll a, ll b, ll &x, ll &y){
         if(a < 0){
@@ -158,6 +169,47 @@ struct MyMathForNT{
 
         return solution;
     }
+
+
+    long long phi(long long n){ // number of numbers are makes coprime with n : between 1 and n.
+
+        long long pPowOfK, relative_primes = 1;
+
+        for(long long number = 2; number * number <= n; number += (1 + (number != 2))){
+            pPowOfK = 1;
+            while(n % number == 0){ pPowOfK *= number; n /= number; }
+            relative_primes *= (pPowOfK / number) * (number - 1);
+        }
+        if(n) relative_primes *= (n - 1);
+
+        return relative_primes;
+    }
+
+    vector<long long> phiForRange(int rangeEnd){
+        vector<long long> phi(rangeEnd, 1);
+        for(int i = 2; i <= rangeEnd; i++){
+            if(isPrime[i]){
+                phi[i] = i - 1;
+                for(int j = i * 2; j <= rangeEnd; j += i){
+                    long long pPowOfK = 1, n = j;
+                    while(n % i == 0){ pPowOfK *= i; n /= i; }
+                    phi[j] *= (pPowOfK / i) * (i - 1);
+                }
+            }
+        }
+        return phi;
+    }
+
+    long long phiForFact(long long n){ // phi(n!) ==> (isprime(n)? (n - 1) : n) * (phi(n - 1))
+        long long ans = 1;
+        for(long long i = n; i >= 2; i--){
+            ans *= (isPrime[i]? i - 1 : i) ;
+        } return ans;
+    }
+
+
+
+
 
 
 
