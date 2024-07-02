@@ -58,7 +58,7 @@ struct MyGeoForGeometry{
         return sqrtl((s - a) * (s - b) * (s - c) * s);
     }
 
-    T getAreaOfTriangleWithPoint(Point A, Point B, Point C){
+    T getAreaOfTriangleWithPoint(Point<T> A, Point<T> B, Point<T> C){
         T a = B.getLengthTo(C), b = A.getLengthTo(C), c = A.getLengthTo(B);
         return getAreaOfTriangleWithLengths(a, b, c);
     }
@@ -70,8 +70,17 @@ struct MyGeoForGeometry{
         return area;
     }
 
+    T dotProd(Point<T> V, Point<T> W){
+        return (V.x*W.x + V.y*W.y);
+    }
 
+    T getAngleBetween2Vectors(Point<T> V, Point<T> W){
+        return acos(clamp( dotProd(V, W), -1.0, 1.0 ) );
+    }
 
+    T crossProd(Point<T> V, Point<T> W){
+        return (V.x*W.y - V.y*W.x);
+    }
 
 
 };
