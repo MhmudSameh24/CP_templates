@@ -31,7 +31,7 @@ struct MyMathForNT{
 
     void buildIsPrime(){
         isPrime.assign(MAXRange + 5, 1);
-        for(int i = 2; i <= 1e6; i++){
+        for(int i = 2; i <= MAXRange; i++){
             if(isPrime[i]){
                 for(int j = i * 2; j <= 1e6; j += i){ isPrime[j] = 0; }
             }
