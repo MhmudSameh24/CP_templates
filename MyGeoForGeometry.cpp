@@ -38,6 +38,10 @@ struct Point{
         y -= other.y;
     }
 
+    T getLength(){
+        return sqrtl(powl(fabs(x), 2) + powl(fabs(y), 2));
+    }
+
     T getLengthTo(Point &other){
         return sqrt(powl(fabs(x - other.x), 2) + powl(fabs(y - other.y), 2));
     } 
@@ -75,13 +79,21 @@ struct MyGeoForGeometry{
     }
 
     T getAngleBetween2Vectors(Point<T> V, Point<T> W){
-        return acos(clamp( dotProd(V, W), -1.0, 1.0 ) );
+        return acosl(clamp( dotProd(V, W) / fabsl(V.getLength()) / fabsl(W.getLength()) , -1.0, 1.0 ) );
     }
 
     T crossProd(Point<T> V, Point<T> W){
         return (V.x*W.y - V.y*W.x);
     }
 
+    T orient(Point<T> A, Point<T> B, Point<T> C){
+        return crossProd(B - A, C - A);
+    }
+
+    bool isBetweenAngle(Point<T> A, Point<T> B, Point<T> C, Point<T> P){
+        if(orient(A, B, C) == 0) return 0;
+        return (orient(A, B, P) >= 0 && orient(A, C, P) <= 0);
+    }
 
 };
 
