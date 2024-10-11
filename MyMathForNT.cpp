@@ -186,6 +186,18 @@ struct MyMathForNT{
         return relative_primes;
     }
 
+    int phi(int n) { // number of numbers are makes coprime with n : between 1 and n.
+        int ans = n;
+        for (int p = 2; p * p <= n; p++) {
+            if (n % p == 0) {
+                while (n % p == 0) { n /= p; }
+                ans -= ans / p;
+            }
+        }
+        if (n > 1) { ans -= ans / n; }
+        return ans;
+    }
+
     void buildPhiForRange(){
         if(isPrime.empty()) buildIsPrime();
         phi.assign(MAXRange + 5, 1);
