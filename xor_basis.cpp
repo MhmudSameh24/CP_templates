@@ -63,6 +63,14 @@ struct XOR_Basis{
         return ans;
     }
 
+    bool can_make(T x){
+        T min_to_add = x;
+        for(int i = n - 1; i >= 0; i--){
+            min_to_add = min(min_to_add, min_to_add ^ Matrix[i]);
+        }
+        return min_to_add == 0;
+    }
+
 };
 
 
