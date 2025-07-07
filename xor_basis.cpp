@@ -38,12 +38,13 @@ struct XOR_Basis{
         return -1;
     }
     void add_element(T x){
-        T min_to_add = x;
+        T min_to_add = x, msb = -1;
         for(int i = n - 1; i >= 0; i--){
             min_to_add = min(min_to_add, min_to_add ^ Matrix[i]);
+            if(msb == -1 && ((min_to_add >> i) & 1)) msb = i;
         }
         if(min_to_add){
-            Matrix[get_msb(min_to_add)] = min_to_add;
+            Matrix[msb] = min_to_add;
         }
     }
 
