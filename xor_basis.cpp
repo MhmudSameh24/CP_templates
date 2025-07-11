@@ -25,12 +25,15 @@ void Fast_IO()
 template<typename T = int>
 struct XOR_Basis{
     int n;
-    vector<int> Matrix;
+    vector<T> Matrix;
+    vector<int> bit_last_inx;
 
     XOR_Basis(int __n){
         n = __n;
         Matrix.assign(n, 0);
+        bit_last_inx.assign(n, -1);
     }
+    
     int get_msb(T x){ // most significant bit
         for(int i = sizeof(x) * 8 - 1; i >= 0; i--){
             if((x >> i) & 1) return i;
@@ -38,7 +41,8 @@ struct XOR_Basis{
         return -1;
     }
     void add_element(T x){
-        T min_to_add = x, msb = -1;
+        T min_to_add = x;
+        int msb = -1;
         for(int i = n - 1; i >= 0; i--){
             min_to_add = min(min_to_add, min_to_add ^ Matrix[i]);
             if(msb == -1 && ((min_to_add >> i) & 1)) msb = i;
@@ -48,11 +52,30 @@ struct XOR_Basis{
         }
     }
 
-    int get_max_sum(){
-        int ans = 0;
+    void add_element(T x, int inx){
+        for(int i = n - 1; i >= 0; i--){
+            if(!((x >> i) & 1)) continue;
+            if(bit_last_inx[i] < inx){
+                swap(Matrix[i], x);
+                swap(inx, bit_last_inx);
+            }
+            x ^= Matrix[i];
+        }
+    }
+
+    T get_max_sum(){
+        T ans = 0;
         for(int i = n - 1; i >= 0; i--){
             ans = max(ans, ans ^ Matrix[i]);
         }
+        return ans;
+    }
+
+    T get_max_sum(int inx){
+        T ans = 0;
+        for(int i = n - 1; i >= 0; i--){
+            if(bit_last_inx[i] >= inx) ans = max(ans, ans ^ Matrix[i]);
+        } 
         return ans;
     }
 
