@@ -39,14 +39,14 @@ struct XOR_Basis{
         return 63 - __builtin_clzll(x);
     }
 
-    int get_rank_from_l(int l){
+    int get_rank_from_l(int l = 0){
         int ans = 0;
         for(int i = N - 1; i >= 0; i--) 
             if(Matrix[i] != 0 && bit_last_inx[i] >= l) ans++;
         return ans;
     }
 
-    void add_element(T x, int inx){
+    void add_element(T x, int inx = 0){
         length++, r = inx;
         for(int i = N - 1; i >= 0; i--){
             if(!((x >> i) & 1)) continue;
@@ -59,7 +59,7 @@ struct XOR_Basis{
         }
     }
 
-    T get_max_xor_from_l(int l){
+    T get_max_xor_from_l(int l = 0){
         T ans = 0;
         for(int i = N - 1; i >= 0; i--){
             if(bit_last_inx[i] >= l) ans = max(ans, ans ^ Matrix[i]);
@@ -67,7 +67,7 @@ struct XOR_Basis{
         return ans;
     }
 
-    bool can_make_from_l(T x, int l, bool exclude_the_empty_set = 0){
+    bool can_make_from_l(T x, int l = 0, bool exclude_the_empty_set = 0){
         if(exclude_the_empty_set && x == 0) { return length > get_rank_from_l(l); }
         T min_to_add = x;
         for(int i = N - 1; i >= 0; i--){
@@ -76,8 +76,34 @@ struct XOR_Basis{
         return min_to_add == 0;
     }
 
-    int count_equal_to_x_from_l(T x, int l){
+    int count_equal_to_x_from_l(T x, int l = 0){
         return (can_make_from_l(x) ? (1LL << ((r - l + 1) - get_rank_from_l(l))) : 0);
+    }
+
+    // from 0 to (2^base_rank - 1):
+    T get_kth_smallest_xor_from_l(int k, int l = 0){ 
+        if((k >= (1 << get_rank_from_l(l))) || k < 0) return -1;
+        T ans = 0;
+        for(int i = 0, bit = -1; i < N; i++){
+            bit += (Matrix[i] != 0 && bit_last_inx[i] >= l);
+            if((k >> bit) & 1){
+                ans ^= Matrix[bit];
+            }
+        }
+        return ans;
+    }
+
+    // from 0 to (2^base_rank - 1)
+    T get_kth_greater_xor_from_l(int k, int l = 0){
+        return get_kth_smallest_xor_from_l(get_span_of_Matrix_from_l() - k - 1, l);
+    }
+
+    long long get_span_of_Matrix_from_l(int l = 0){
+        return (1LL << get_rank_from_l(l));
+    }
+
+    long long count_numbers_from_l(int l = 0){
+        return get_span_of_Matrix(l);
     }
 
 };
