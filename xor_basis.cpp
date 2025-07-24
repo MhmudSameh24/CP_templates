@@ -24,77 +24,86 @@ void Fast_IO()
 
 template<typename T = int>
 struct XOR_Basis{
-    int n;
+    int N, length, base_rank;
     vector<T> Matrix;
-    vector<int> bit_last_inx;
 
-    XOR_Basis(int __n){
-        n = __n;
-        Matrix.assign(n, 0);
-        bit_last_inx.assign(n, -1);
+    XOR_Basis(int __n = -1){
+        N = __n, length = 0, base_rank = 0;
+        if(N == -1) N = sizeof(T) * 8;
+        Matrix.assign(N, 0);
     }
     
     int get_msb(T x){ // most significant bit
-        for(int i = sizeof(x) * 8 - 1; i >= 0; i--){
-            if((x >> i) & 1) return i;
-        }
-        return -1;
+        return 63 - __builtin_clzll(x);
     }
+
+    int get_rank_of_matrix(){
+        return base_rank;
+        int ans = 0;
+        for(int i = 0; i < N; i++){ ans += (Matrix[i] != 0); }
+        return ans;
+    }
+
     void add_element(T x){
         T min_to_add = x;
+        length++;
         int msb = -1;
-        for(int i = n - 1; i >= 0; i--){
+        for(int i = N - 1; i >= 0; i--){
             min_to_add = min(min_to_add, min_to_add ^ Matrix[i]);
             if(msb == -1 && ((min_to_add >> i) & 1)) msb = i;
         }
         if(min_to_add){
-            Matrix[msb] = min_to_add;
+            Matrix[msb] = min_to_add; base_rank++;
         }
     }
-
-    void add_element(T x, int inx){
-        for(int i = n - 1; i >= 0; i--){
-            if(!((x >> i) & 1)) continue;
-            if(bit_last_inx[i] < inx){
-                swap(Matrix[i], x);
-                swap(inx, bit_last_inx);
-            }
-            x ^= Matrix[i];
-        }
-    }
-
-    T get_max_sum(){
+    
+    T get_max_xor(){
         T ans = 0;
-        for(int i = n - 1; i >= 0; i--){
+        for(int i = N - 1; i >= 0; i--){
             ans = max(ans, ans ^ Matrix[i]);
         }
         return ans;
     }
 
-    T get_max_sum(int inx){
-        T ans = 0;
-        for(int i = n - 1; i >= 0; i--){
-            if(bit_last_inx[i] >= inx) ans = max(ans, ans ^ Matrix[i]);
-        } 
-        return ans;
-    }
-
-    int get_rank_of_matrix(){
-        int ans = 0;
-        for(int i = 0; i < n; i++){
-            ans += (Matrix[i] != 0);
-        }
-        return ans;
-    }
-
-    bool can_make(T x){
+    bool can_make(T x, bool exclude_the_empty_set = 0){
+        if(exclude_the_empty_set && x == 0) { return length > base_rank; }
         T min_to_add = x;
-        for(int i = n - 1; i >= 0; i--){
+        for(int i = N - 1; i >= 0; i--){
             min_to_add = min(min_to_add, min_to_add ^ Matrix[i]);
         }
         return min_to_add == 0;
     }
 
+    int count_equal_to_x(T x, int len = length){
+        return (can_make(x) ? (1LL << (len - base_rank)) : 0);
+    }
+
+    // from 0 to (2^base_rank - 1):
+    T get_kth_smallest_xor(int k){ 
+        if((k >= (1 << base_rank)) || k < 0) return -1;
+        T ans = 0;
+        for(int i = 0, bit = -1; i < N; i++){
+            bit += (Matrix[i] != 0);
+            if((k >> bit) & 1){
+                ans ^= Matrix[bit];
+            }
+        }
+        return ans;
+    }
+
+    // from 0 to (2^base_rank - 1)
+    T get_kth_greater_xor(int k){
+        if((k >= (1 << base_rank)) || k < 0) return -1;
+        return get_kth_smallest_xor(get_span_of_Matrix() - k - 1);
+    }
+
+    long long get_span_of_Matrix(){
+        return (1LL << base_rank);
+    }
+
+    long long count_numbers(){
+        return get_span_of_Matrix();
+    }
 };
 
 
